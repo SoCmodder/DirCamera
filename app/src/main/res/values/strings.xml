@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">DirCamera</string>
+
+    <string name="app_description">This app will save the photo that you take in a directory
+        named via the box below which will be on the root of your storage.
+    </string>
+    <string name="take_picture">Take Pic</string>
+</resources>
