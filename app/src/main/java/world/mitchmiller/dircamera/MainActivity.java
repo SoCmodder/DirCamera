@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,14 +19,18 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
-    static final int REQUEST_IMAGE_CAPTURE = 1;
+    public final static String APP_PATH_SD_CARD = "/DesiredSubfolderName/";
+    public final static String APP_THUMBNAIL_PATH_SD_CARD = "thumbnails";
 
+    static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
 
     private ImageView thumb;
@@ -41,6 +46,38 @@ public class MainActivity extends AppCompatActivity {
         setupButton();
         thumb = findViewById(R.id.thumb);
         input = findViewById(R.id.directory_name);
+    }
+
+    public boolean saveImageToExternalStorage(Bitmap image) {
+        String fullPath = Environment.getExternalStorageDirectory().getAbsolutePath() + APP_PATH_SD_CARD + APP_THUMBNAIL_PATH_SD_CARD;
+
+        try {
+            File dir = new File(fullPath);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+
+            OutputStream fOut = null;
+            File file = new File(fullPath, "desiredFilename.png");
+            file.createNewFile();
+            fOut = new FileOutputStream(file);
+
+            // 100 means no compression, the lower you go, the stronger the compression
+            image.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+            fOut.flush();
+            fOut.close();
+
+            MediaStore.Images.Media.insertImage(this.getContentResolver(),
+                                                file.getAbsolutePath(),
+                                                file.getName(),
+                                                file.getName());
+
+            return true;
+
+        } catch (Exception e) {
+            Log.e("saveToExternalStorage()", e.getMessage());
+            return false;
+        }
     }
 
     private void setupButton() {
@@ -83,6 +120,8 @@ public class MainActivity extends AppCompatActivity {
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             thumb.setImageBitmap(imageBitmap);
+
+            saveImageToExternalStorage(imageBitmap);
         }
     }
 
