@@ -1,4 +1,4 @@
-package world.mitchmiller.dircamera;
+package world.mitchmiller.dircamera.util;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -13,5 +13,8 @@ public class NameUtilities {
         return DateFormat.getDateTimeInstance().format(new Date());
     }
 
+    public static String defaultFileName() {
+        return "DirCamera-" + getDateTimeString();
+    }
 
 }

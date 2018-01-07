@@ -25,17 +25,16 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import world.mitchmiller.dircamera.util.FileUtils;
+import world.mitchmiller.dircamera.util.NameUtilities;
+
 public class MainActivity extends AppCompatActivity {
 
-    public final static String APP_PATH_SD_CARD = "/DirCamera/";
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
-    static final int REQUEST_TAKE_PHOTO = 1;
 
     private ImageView thumb;
     private EditText input;
-
-    private String currentPhotoPath;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,38 +44,6 @@ public class MainActivity extends AppCompatActivity {
         setupButton();
         thumb = findViewById(R.id.thumb);
         input = findViewById(R.id.directory_name);
-    }
-
-    public boolean saveImageToExternalStorage(Bitmap image) {
-        String fullPath = Environment.getExternalStorageDirectory().getAbsolutePath() + APP_PATH_SD_CARD + getDirectoryName();
-
-        try {
-            File dir = new File(fullPath);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-
-            OutputStream fOut = null;
-            File file = new File(fullPath, "desiredFilename.png");
-            file.createNewFile();
-            fOut = new FileOutputStream(file);
-
-            // 100 means no compression, the lower you go, the stronger the compression
-            image.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-            fOut.flush();
-            fOut.close();
-
-            MediaStore.Images.Media.insertImage(this.getContentResolver(),
-                    file.getAbsolutePath(),
-                    file.getName(),
-                    file.getName());
-
-            return true;
-
-        } catch (Exception e) {
-            Log.e("saveToExternalStorage()", e.getMessage());
-            return false;
-        }
     }
 
     private void setupButton() {
@@ -103,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             thumb.setImageBitmap(imageBitmap);
 
-            saveImageToExternalStorage(imageBitmap);
+            FileUtils.saveImageToExternalStorage(this, imageBitmap, getDirectoryName());
         }
     }
 
