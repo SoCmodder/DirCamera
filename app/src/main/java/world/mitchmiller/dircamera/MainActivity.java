@@ -27,8 +27,7 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
-    public final static String APP_PATH_SD_CARD = "/DesiredSubfolderName/";
-    public final static String APP_THUMBNAIL_PATH_SD_CARD = "thumbnails";
+    public final static String APP_PATH_SD_CARD = "/DirCamera/";
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
@@ -49,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean saveImageToExternalStorage(Bitmap image) {
-        String fullPath = Environment.getExternalStorageDirectory().getAbsolutePath() + APP_PATH_SD_CARD + APP_THUMBNAIL_PATH_SD_CARD;
+        String fullPath = Environment.getExternalStorageDirectory().getAbsolutePath() + APP_PATH_SD_CARD + getDirectoryName();
 
         try {
             File dir = new File(fullPath);
@@ -68,9 +67,9 @@ public class MainActivity extends AppCompatActivity {
             fOut.close();
 
             MediaStore.Images.Media.insertImage(this.getContentResolver(),
-                                                file.getAbsolutePath(),
-                                                file.getName(),
-                                                file.getName());
+                    file.getAbsolutePath(),
+                    file.getName(),
+                    file.getName());
 
             return true;
 
@@ -87,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //dispatchTakePictureIntent();
-                dispatchTakePictureIntentOld();
+                dispatchTakePictureIntent();
             }
         });
     }
@@ -95,23 +94,6 @@ public class MainActivity extends AppCompatActivity {
     @NonNull
     private String getDirectoryName() {
         return input.getText().toString();
-    }
-
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "DirCamera" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File customDir = new File(storageDir, getDirectoryName());
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoPath = image.getAbsolutePath();
-        return image;
     }
 
     @Override
@@ -125,33 +107,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void dispatchTakePictureIntentOld() {
+    private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-        }
-    }
-
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-                Toast.makeText(this, "Error saving image...", Toast.LENGTH_LONG).show();
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.example.android.fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-            }
         }
     }
 }
