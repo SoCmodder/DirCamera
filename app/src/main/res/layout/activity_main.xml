@@ -17,6 +17,7 @@
 
     <EditText
         android:id="@+id/directory_name"
+        android:hint="@string/directory_name_hint"
         android:layout_below="@+id/app_description"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"

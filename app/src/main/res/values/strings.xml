@@ -5,4 +5,5 @@
         named via the box below which will be on the root of your storage.
     </string>
     <string name="take_picture">Take Pic</string>
+    <string name="directory_name_hint">directory name</string>
 </resources>
